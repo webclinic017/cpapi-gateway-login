@@ -30,6 +30,7 @@ def authenticate_user(
 ):
     print("Starting Chrome driver...")
     webdriver_options = webdriver.ChromeOptions()
+    # Gateway uses self-signed certs, ignore warnings related to it
     webdriver_options.add_argument("--ignore-certificate-errors")
     webdriver_options.add_argument("--ignore-ssl-errors")
     webdriver_options.add_argument("--log-level=3")
@@ -59,12 +60,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "username",
-        help="username for authentication",
+        help="username for the user to be authenticated",
         type=str,
     )
     parser.add_argument(
         "password",
-        help="password for authentication",
+        help="password for the user to be authenticated",
         type=str,
     )
     parser.add_argument(
@@ -75,13 +76,13 @@ def main():
     )
     parser.add_argument(
         "--port",
-        help="port for authentication",
+        help="port on which the gateway is running",
         type=int,
         default=5000,
     )
     parser.add_argument(
         "--headless",
-        help="run in headless mode",
+        help="don't open browser window when authenticating the user",
         action="store_true",
         default=False,
     )
