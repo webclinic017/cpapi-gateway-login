@@ -28,6 +28,7 @@ def authenticate_user(
     gateway_port: int = 5000,
     headless: bool = True,
 ):
+    print("Starting Chrome driver...")
     webdriver_options = webdriver.ChromeOptions()
     webdriver_options.add_argument("--ignore-certificate-errors")
     webdriver_options.add_argument("--ignore-ssl-errors")
@@ -41,6 +42,7 @@ def authenticate_user(
         while chrome_driver.current_url == login_page:
             time.sleep(0.25)
         current_url = chrome_driver.current_url
+        print(f"Logging in as {username}...")
         username_input = chrome_driver.find_element(By.ID, "xyz-field-username")
         username_input.send_keys(username)
         password_input = chrome_driver.find_element(By.ID, "xyz-field-password")
@@ -50,6 +52,7 @@ def authenticate_user(
         # Wait until user is redirected to the login confirmation page
         while chrome_driver.current_url == current_url:
             time.sleep(0.25)
+        print("Login successful!")
 
 
 def main():
@@ -65,7 +68,7 @@ def main():
         type=str,
     )
     parser.add_argument(
-        "path",
+        "--path",
         help="relative path to the root gateway directory",
         type=str,
         default=".",
