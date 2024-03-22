@@ -1,11 +1,11 @@
-import os
-import time
-import urllib3
-import argparse
-import requests
-import threading
-from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium import webdriver
+import threading
+import requests
+import argparse
+import urllib3
+import time
+import os
 
 
 def start_gateway(gateway_root_dir: str):
@@ -28,15 +28,14 @@ def authenticate_user(
     gateway_port: int = 5000,
     headless: bool = True,
 ):
-    print("Starting Chrome driver...")
-    webdriver_options = webdriver.ChromeOptions()
+    webdriver_options = webdriver.EdgeOptions()
     # Gateway uses self-signed certs, ignore warnings related to it
     webdriver_options.add_argument("--ignore-certificate-errors")
     webdriver_options.add_argument("--ignore-ssl-errors")
     webdriver_options.add_argument("--log-level=3")
     if headless:
         webdriver_options.add_argument("--headless")
-    with webdriver.Chrome(options=webdriver_options) as chrome_driver:
+    with webdriver.Edge(options=webdriver_options) as chrome_driver:
         login_page = f"https://localhost:{gateway_port}"
         chrome_driver.get(login_page)
         # User is redirected to login page on first visit
@@ -78,7 +77,7 @@ def main():
         "--port",
         help="port on which the gateway is running",
         type=int,
-        default=5000,
+        default=8080,
     )
     parser.add_argument(
         "--headless",
@@ -86,21 +85,19 @@ def main():
         action="store_true",
         default=False,
     )
-    gateway_thread = threading.Thread(
-        target=start_gateway, args=(parser.parse_args().path,)
-    )
+    parsed_args = parser.parse_args()
+    gateway_thread = threading.Thread(target=start_gateway, args=(parsed_args.path,))
     gateway_thread.start()
     NUM_SECONDS_TO_WAIT_UNTIL_GATEWAY_START = 5
     time.sleep(NUM_SECONDS_TO_WAIT_UNTIL_GATEWAY_START)
     authenticate_user(
-        parser.parse_args().username,
-        parser.parse_args().password,
-        parser.parse_args().port,
-        parser.parse_args().headless,
+        parsed_args.username,
+        parsed_args.password,
+        parsed_args.port,
+        parsed_args.headless,
     )
-    auth_status = get_auth_status()
+    auth_status = get_auth_status(port=parsed_args.port)
     print(auth_status)
-    gateway_thread.join()
 
 
 if __name__ == "__main__":
